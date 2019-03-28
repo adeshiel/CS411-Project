@@ -1,10 +1,36 @@
-html>
+<html>
 <head>
 <title>Dramafy Prototype</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css?family=Germania+One" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
 </head>
+<body>
+<header>
+  <h2>Dramafy</h2>
+</header>
+
+<nav>
+    <ul>
+      <li><a href="login.html">Login Page</a></li>
+      <li><a href="#">Save</a></li>
+      <li><a href="#">Share</a></li>
+    </ul>
+</nav>
+
+  <div id="video">
+      {{vid}}
+      <form action="/return">
+        <input type="file" accept="video/*" name="video">
+        <input type="submit">
+      </form>
+  </div>
+
+<footer>
+  <p>Footer</p>
+</footer>
+
 <body>
 
 
