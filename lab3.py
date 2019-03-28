@@ -68,9 +68,9 @@ def findEmotions(vid, turns):
 
                 ## this block shows a separate window with live frames and edits
                 ## Use it for testing!
-                # cv2.putText(frame, str(highestEmotion), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 2, 255)
-                # cv2.imshow('Test', frame)
-                # cv2.waitKey(2)
+                cv2.putText(frame, str(highestEmotion), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 2, 255)
+                cv2.imshow('Test', frame)
+                cv2.waitKey(2)
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
@@ -86,7 +86,7 @@ def findEmotions(vid, turns):
     cv2.destroyAllWindows()
 
     for key in TotalEmotionAverage:
-        TotalEmotionAverage[key] = Average(TotalEmotionAverage[key])
+        TotalEmotionAverage[key] = Average(TotalEmotionAverage[key]) 
 
     highestAvgEmotion =  max(TotalEmotionAverage, key=TotalEmotionAverage.get)
     print('The overall emotion of people in this video is: ' + highestAvgEmotion)
@@ -98,4 +98,4 @@ def Average(lst):
     return sum(lst) / len(lst)
 
 
-findEmotions('caolanTest.mp4')
+findEmotions('caolanTest.mp4', 60)
