@@ -1,7 +1,7 @@
 <html>
 <head>
 <title>Dramafy Prototype</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="../static/style.css">
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Germania+One" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
@@ -21,9 +21,9 @@
 
   <div id="video">
       {{vid}}
-      <form action="/return">
-        <input type="file" accept="video/*" name="video">
-        <input type="submit">
+      <form action="/return" enctype = "multipart/form-data" method="POST">
+        <input type="file" accept="video/*" name="vide" />
+        <input type="submit"/>
       </form>
   </div>
 
