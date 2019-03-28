@@ -6,7 +6,7 @@ from io import BytesIO
 # from PIL import Image, ImageDraw
 from flask import Flask, render_template, jsonify, request
 from KEYS import CF_KEY
-
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -15,10 +15,15 @@ if (__name__ == '__main__'):
        debug=True,
    )
 
+
 CF.Key.set(CF_KEY)
 
 BASE_URL = 'https://eastus.api.cognitive.microsoft.com/face/v1.0/'  # Replace with your regional Base URL
 CF.BaseUrl.set(BASE_URL)
+
+
+app.config['UPLOAD_FOLDER'] = '/Uploads'
+
 
 TotalEmotionAverage = {'anger': [], 'contempt': [], 'disgust': [], 'fear': [], 'happiness': [], 'neutral': [], 'sadness': [], 'surprise': []}
 
@@ -28,9 +33,14 @@ def homepage():
 
 @app.route("/return", methods=['GET', 'POST'])
 def retpage():
-    video= request.form['video']
-    analysis = forLab(video)
-    return render_template("index.html", video=analysis)
+    if request.method == 'POST':
+        vid= request.files['vide']
+        # print(vid.filename)
+        vid.save(secure_filename(vid.filename))
+        analysis = forLab(vid.filename)
+        return render_template("index.html", vid=analysis)
+    else:
+        return render_template("index.html")
 
 def findEmotions(vid, turns):
     assert turns >= 0, "Cannot have negative turn value"
@@ -99,7 +109,9 @@ def findEmotions(vid, turns):
     print('The overall emotion of people in this video is: ' + highestAvgEmotion)
 
 def forLab(vid):
+        """ Videos can only be read if they are present in the project folder """
         cap = cv2.VideoCapture(vid)
+        emo = {}
         while(cap.isOpened()):
             ret, frame = cap.read()
             cv2.imwrite("current.png", frame)
@@ -134,7 +146,9 @@ def forLab(vid):
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
-                break
+                if emo != {}:
+                    print("breaking")
+                    break
 
             except KeyboardInterrupt:
                 cap.release()
