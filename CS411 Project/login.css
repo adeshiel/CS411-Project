@@ -1,0 +1,57 @@
+body, html {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.mainScreen {
+  background-image: url("bluelights.jpg");
+  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+header {
+    font-family: 'Germania One', cursive;
+    color:royalblue;
+    font-style: italic;
+    font-size: 50px;
+}
+
+.loginform {  
+  font-family: 'Noto Sans', sans-serif;
+}
+
+.container {
+  position: center;
+  margin: auto;
+  max-width: 300px;
+  padding: 16px;
+  background-color: white;
+}
+
+/* Full-width input fields */
+input[type=text], input[type=password] {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  border: none;
+  background: #f1f1f1;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+/* Set a style for the submit button */
+.btn {
+  background-color: royalblue;
+  color: white;
+  padding: 16px 20px;
+  width: 100%;
+  opacity: 0.9;
+}
