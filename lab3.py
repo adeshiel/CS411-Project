@@ -35,9 +35,8 @@ def homepage():
 def retpage():
     if request.method == 'POST':
         vid= request.files['vide']
-        # print(vid)
+        print(vid.filename)
         analysis = forLab(vid.filename)
-        # analysis = "through"
         return render_template("index.html", vid=analysis)
     else:
         return render_template("index.html")
@@ -110,6 +109,7 @@ def findEmotions(vid, turns):
 
 def forLab(vid):
         cap = cv2.VideoCapture(vid)
+        emo = {}
         while(cap.isOpened()):
             ret, frame = cap.read()
             cv2.imwrite("current.png", frame)
@@ -144,7 +144,9 @@ def forLab(vid):
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
-                break
+                if emo != {}:
+                    print("breaking")
+                    break
 
             except KeyboardInterrupt:
                 cap.release()
