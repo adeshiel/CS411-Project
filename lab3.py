@@ -10,10 +10,10 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-if (__name__ == '__main__'):
-   app.run(
-       debug=True,
-   )
+# if (__name__ == '__main__'):
+#    app.run(
+#        debug=True,
+#    )
 
 
 CF.Key.set(CF_KEY)
@@ -37,8 +37,9 @@ def retpage():
         vid= request.files['vide']
         # print(vid.filename)
         vid.save(secure_filename(vid.filename))
-        analysis = forLab(vid.filename)
-        return render_template("index.html", vid=analysis)
+        # analysis = forLab(vid.filename)
+        analysis = findEmotions(vid.filename, 40)
+        return render_template("index.html", vid=analysis[1], highest=analysis[0])
     else:
         return render_template("index.html")
 
@@ -48,55 +49,59 @@ def findEmotions(vid, turns):
     turnsLeft = 0
     while(cap.isOpened()):
         ret, frame = cap.read()
-        cv2.imwrite("current.png", frame)
 
-        # TODO: only make API call once every x turns
-        if turnsLeft != 0:
-            turnsLeft -= 1
+        if ret == True:
+            cv2.imwrite("current.png", frame)
+            # TODO: only make API call once every x turns
+            if turnsLeft != 0:
+                turnsLeft -= 1
+            else:
+                result = CF.face.detect("current.png", attributes='emotion')
+
+                try:
+                    if result == []:
+                        continue
+
+                    elif len(result) > 1:
+                        emoList = []
+
+                        for face in result:
+                            emotes = face['faceAttributes']['emotion']
+                            print(emotes)
+                            emoList.append(emotes)
+
+                            # TODO: if there is more than one face, average out emotion
+                            # for now we'll take the first one
+
+                        emo = emoList[0]
+                    elif len(result) == 1:
+                        emo = result[0]['faceAttributes']['emotion']
+                        print(emo)
+
+                    for key in emo:
+                        TotalEmotionAverage[key].append(emo[key])
+
+
+                    # TODO: emotion calculation -> effects
+                    highestEmotion = max(emo, key=emo.get)
+
+                    ## this block shows a separate window with live frames and edits
+                    ## Use it for testing!
+                    cv2.putText(frame, str(highestEmotion), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 2, 255)
+                    cv2.imshow('Test', frame)
+                    # cv2.waitKey(2)
+
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+
+
+                except KeyboardInterrupt:
+                    cap.release()
+                    cv2.destroyAllWindows()
+
+                turnsLeft = turns
         else:
-            result = CF.face.detect("current.png", attributes='emotion')
-
-            try:
-                if result == []:
-                    continue
-
-                elif len(result) > 1:
-                    emoList = []
-
-                    for face in result:
-                        emotes = face['faceAttributes']['emotion']
-                        print(emotes)
-                        emoList.append(emotes)
-
-                        # TODO: if there is more than one face, average out emotion
-                        # for now we'll take the first one
-
-                    emo = emoList[0]
-                elif len(result) == 1:
-                    emo = result[0]['faceAttributes']['emotion']
-                    print(emo)
-
-                for key in emo:
-                    TotalEmotionAverage[key].append(emo[key])
-
-
-                # TODO: emotion calculation -> effects
-                highestEmotion = max(emo, key=emo.get)
-
-                ## this block shows a separate window with live frames and edits
-                ## Use it for testing!
-                cv2.putText(frame, str(highestEmotion), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 2, 255)
-                cv2.imshow('Test', frame)
-                cv2.waitKey(2)
-
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-
-            except KeyboardInterrupt:
-                cap.release()
-                cv2.destroyAllWindows()
-
-            turnsLeft = turns
+            break
 
     ## and when finished
     cap.release()
@@ -107,6 +112,7 @@ def findEmotions(vid, turns):
 
     highestAvgEmotion =  max(TotalEmotionAverage, key=TotalEmotionAverage.get)
     print('The overall emotion of people in this video is: ' + highestAvgEmotion)
+    return [highestAvgEmotion, TotalEmotionAverage]
 
 def forLab(vid):
         """ Videos can only be read if they are present in the project folder """
