@@ -22,7 +22,7 @@ BASE_URL = 'https://eastus.api.cognitive.microsoft.com/face/v1.0/'  # Replace wi
 CF.BaseUrl.set(BASE_URL)
 
 
-app.config['UPLOAD_FOLDER'] = '/'
+app.config['UPLOAD_FOLDER'] = '/Uploads'
 
 
 TotalEmotionAverage = {'anger': [], 'contempt': [], 'disgust': [], 'fear': [], 'happiness': [], 'neutral': [], 'sadness': [], 'surprise': []}
@@ -35,7 +35,8 @@ def homepage():
 def retpage():
     if request.method == 'POST':
         vid= request.files['vide']
-        print(vid.filename)
+        # print(vid.filename)
+        vid.save(secure_filename(vid.filename))
         analysis = forLab(vid.filename)
         return render_template("index.html", vid=analysis)
     else:
@@ -108,6 +109,7 @@ def findEmotions(vid, turns):
     print('The overall emotion of people in this video is: ' + highestAvgEmotion)
 
 def forLab(vid):
+        """ Videos can only be read if they are present in the project folder """
         cap = cv2.VideoCapture(vid)
         emo = {}
         while(cap.isOpened()):
