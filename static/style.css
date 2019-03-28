@@ -1,34 +1,44 @@
-* { /* Fresh css palette to overwrite any unexpected browser defaults */
-    margin: 10px;
-    /* padding: 0; */
-    /* border: 1px;
-    outline: 1px; */
-    font-size: 100%;
-    vertical-align: baseline;
-    /* background: transparent; */
-}
-
-
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-h1 {
-  font-size: 300%;
+header {
+  background-color: royalblue;
+  text-align: center;
+  font-size: 90px;
+  font-family: 'Germania One', cursive;
+    padding: 1px;
+  color: white;
 }
 
-h2 {
-  font-size: 200%;
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
 }
 
-input {
-  border-radius: 50px;
+li {
+  float: left;
 }
 
-input[type=number]{
-  text-align: right;
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-family: 'Noto Sans', sans-serif;
 }
 
-input[type=number]:focus {
-    outline-color: lightblue;
+li a:hover {
+  background-color: #111;
+
+#video {
+  float: left;
+  padding: 20px;
+  width: 70%;
+  background-color: #f1f1f1;
+  height: 300px; 
 }

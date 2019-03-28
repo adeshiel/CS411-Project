@@ -1,10 +1,56 @@
 <html>
 <head>
 <title>Dramafy Prototype</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Germania+One" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
+    <style>
+        body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+  background-color: royalblue;
+  text-align: center;
+  font-size: 90px;
+  font-family: 'Germania One', cursive;
+    padding: 1px;
+  color: white;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-family: 'Noto Sans', sans-serif;
+}
+
+li a:hover {
+  background-color: #111;
+
+#video {
+  float: left;
+  padding: 20px;
+  width: 70%;
+  background-color: #f1f1f1;
+  height: 300px; 
+}
+
+    </style>
 </head>
 <body>
 <header>
@@ -13,11 +59,15 @@
 
 <nav>
     <ul>
-      <li><a href="login.html">Login Page</a></li>
+      <li><a href="templates/login.html">Login Page</a></li>
       <li><a href="#">Save</a></li>
       <li><a href="#">Share</a></li>
     </ul>
 </nav>
+    
+<br>
+<br>
+<br>
 
   <div id="video">
       {{vid}}
@@ -26,10 +76,6 @@
         <input type="submit">
       </form>
   </div>
-
-<footer>
-  <p>Footer</p>
-</footer>
 
 <body>
 
