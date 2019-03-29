@@ -2,6 +2,7 @@
 import requests
 import cv2
 import cognitive_face as CF
+import numpy as np
 from io import BytesIO
 # from PIL import Image, ImageDraw
 from flask import Flask, render_template, jsonify, request
@@ -14,7 +15,6 @@ app = Flask(__name__)
 #    app.run(
 #        debug=True,
 #    )
-
 
 CF.Key.set(CF_KEY)
 
@@ -49,22 +49,16 @@ def findEmotions(vid, turns):
     turnsLeft = 0
     while(cap.isOpened()):
         ret, frame = cap.read()
-
-        if ret == True:
+        if ret:
             cv2.imwrite("current.png", frame)
             # TODO: only make API call once every x turns
             if turnsLeft != 0:
                 turnsLeft -= 1
             else:
                 result = CF.face.detect("current.png", attributes='emotion')
-
                 try:
-                    if result == []:
-                        continue
-
-                    elif len(result) > 1:
+                    if len(result) > 0:
                         emoList = []
-
                         for face in result:
                             emotes = face['faceAttributes']['emotion']
                             print(emotes)
@@ -72,12 +66,11 @@ def findEmotions(vid, turns):
 
                             # TODO: if there is more than one face, average out emotion
                             # for now we'll take the first one
-
                         emo = emoList[0]
-                    elif len(result) == 1:
-                        emo = result[0]['faceAttributes']['emotion']
-                        print(emo)
-
+            
+                    else:
+                        continue
+                    
                     for key in emo:
                         TotalEmotionAverage[key].append(emo[key])
 
@@ -108,7 +101,7 @@ def findEmotions(vid, turns):
     cv2.destroyAllWindows()
 
     for key in TotalEmotionAverage:
-        TotalEmotionAverage[key] = Average(TotalEmotionAverage[key])
+        TotalEmotionAverage[key] = np.mean(TotalEmotionAverage[key])
 
     highestAvgEmotion =  max(TotalEmotionAverage, key=TotalEmotionAverage.get)
     print('The overall emotion of people in this video is: ' + highestAvgEmotion)
@@ -165,10 +158,6 @@ def forLab(vid):
         cv2.destroyAllWindows()
 
         return emo
-
-
-def Average(lst):
-    return sum(lst) / len(lst)
 
 
 # findEmotions('caolanTest.mp4', 60)
