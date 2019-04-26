@@ -5,6 +5,9 @@
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Germania+One" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
+<meta name="google-signin-scope" content="profile email">
+<meta name="google-signin-client_id" content="544478068590-eveudh44t7l8rl4ruvoj3qd3b875ne4k.apps.googleusercontent.com">
+<script src="https://apis.google.com/js/platform.js" async defer></script>
     <style>
         body {
   font-family: Arial, Helvetica, sans-serif;
@@ -57,7 +60,24 @@ li a:hover {
 <header>
   <h2>Dramafy</h2>
 </header>
+<div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+    <script>
+      function onSignIn(googleUser) {
+        // Useful data for your client-side scripts:
+        var profile = googleUser.getBasicProfile();
+        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+        console.log('Full Name: ' + profile.getName());
+        console.log('Given Name: ' + profile.getGivenName());
+        console.log('Family Name: ' + profile.getFamilyName());
+        console.log("Image URL: " + profile.getImageUrl());
+        console.log("Email: " + profile.getEmail());
 
+        // The ID token you need to pass to your backend:
+        var id_token = googleUser.getAuthResponse().id_token;
+        document.getElementById("user").value = id_token
+        console.log("ID Token: " + id_token);
+      }
+    </script>
 <nav>
     <ul>
       <li><a href="templates/login.html">Login Page</a></li>
@@ -74,10 +94,12 @@ li a:hover {
       Average emotions: {{vid}} <br/>
       The highest emotion is {{highest}} <br/>
       <form action="/return" enctype = "multipart/form-data" method="POST">
+        <input type="text" value="" id="user" name="userToken"/>
         <input type="file" accept="video/*" name="vide" />
         <input type="submit"/>
       </form>
   </div>
+  
 
 <body>
 
