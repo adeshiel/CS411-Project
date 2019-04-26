@@ -5,7 +5,7 @@ import numpy as np
 import os
 import requests
 from io import BytesIO
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, url_for
 from KEYS import CF_KEY
 from pymongo import MongoClient
 from werkzeug.utils import secure_filename
@@ -34,7 +34,20 @@ TotalEmotionAverage = {'anger': [], 'contempt': [], 'disgust': [], 'fear': [], '
 TotalAvg = {'anger': 0, 'contempt': 0, 'disgust': 0, 'fear': 0, 'happiness': 0, 'neutral': 0, 'sadness': 0, 'surprise': 0}
 exclamation = cv2.imread("effects\\exclamation.png")
 
-
+@app.route('/oauth2callback')
+def oauth2callback():
+    flow = client.flow_from_clientsecrets('client_id.json',
+            scope='https://www.googleapis.com/auth/drive',
+            redirect_uri=url_for('oauth2callback', _external=True)) # access drive api using developer credentials
+    flow.params['include_granted_scopes'] = 'true'
+    if 'code' not in flask.request.args:
+        auth_uri = flow.step1_get_authorize_url()
+        return flask.redirect(auth_uri)
+    else:
+        auth_code = flask.request.args.get('code')
+        credentials = flow.step2_exchange(auth_code)
+        open('credentials.json','w').write(credentials.to_json()) # write access token to credentials.json locally
+        return flask.redirect(flask.url_for('index'))
 
 @app.route("/", methods=['GET', 'POST'])
 def retpage():
