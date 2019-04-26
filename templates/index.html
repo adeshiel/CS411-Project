@@ -16,7 +16,7 @@
 header {
   background-color: royalblue;
   text-align: center;
-  font-size: 90px;
+  font-size: 50px;
   font-family: 'Germania One', cursive;
     padding: 1px;
   color: white;
@@ -89,15 +89,19 @@ li a:hover {
 <br>
 <br>
 <br>
-
+  <video width="320" height="240" src={{ url_for('static', filename="outpy.mp4")}} controls>
+  </video>
   <div id="video">
       Average emotions: {{vid}} <br/>
       The highest emotion is {{highest}} <br/>
-      <form action="/return" enctype = "multipart/form-data" method="POST">
-        <input type="text" value="" id="user" name="userToken"/>
+      <form action="/" enctype = "multipart/form-data" method="POST">
+        <input type="text" value="" id="user" name="userToken" hidden/>
         <input type="file" accept="video/*" name="vide" />
         <input type="submit"/>
       </form>
+
+      <br>
+      <a href={{ url_for('static', filename="outpy.mp4")}} download> Download video here! </a>
   </div>
   
 
