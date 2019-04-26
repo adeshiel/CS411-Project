@@ -14,20 +14,17 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = '/Uploads'
 
 
-# if (__name__ == '__main__'):
-#    app.run(
-#        debug=True,
-#        threaded=False,
-#        processes=3,
-#    )
+if (__name__ == '__main__'):
+   app.run(
+    host="0.0.0.0",
+    port=5000
+  )
 
 
 
 client = MongoClient('localhost', 27017)
 db = client.user
 posts = db.posts
-
-
 
 CF.Key.set(CF_KEY)
 BASE_URL = 'https://eastus.api.cognitive.microsoft.com/face/v1.0/'  # Replace with your regional Base URL
@@ -67,14 +64,14 @@ def findEmotions(vid, turns):
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
     highestEmotion = ""
-    # out = cv2.VideoWriter('static\\outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 24, (frame_width,frame_height))
     out = cv2.VideoWriter('static\\outpy.mp4',0x7634706d, 24, (frame_width,frame_height))
 
-    turnsLeft = 0
-    faceloc = []
-    print("loading...")
+    print("loading...") # so we know it's running in the debugger
 
+    # local effects
+    faceloc = []
     angerAlpha = 0.1
+    turnsLeft = 0
     tilt = 'left'
 
     while(cap.isOpened()):
@@ -98,25 +95,19 @@ def findEmotions(vid, turns):
                         loc_face = []
                         for face in result:
                             emotes = face['faceAttributes']['emotion']
-                            # print(emotes)
                             emoList.append(emotes)
                             loc_face.append(getRectangle(face))
 
-                            # TODO: if there is more than one face, average out emotion
-                            # for now we'll take the first one
 
                         emo = emoList[0]
                         faceloc = loc_face[0]
                     elif len(result) == 1:
                         emo = result[0]['faceAttributes']['emotion']
                         faceloc = getRectangle(result[0])
-                        # print(emo)
 
                     for key in emo:
                         TotalEmotionAverage[key].append(emo[key])
 
-
-                    # TODO: emotion calculation -> effects
                     highestEmotion = max(emo, key=emo.get)
                     turnsLeft = turns
 
