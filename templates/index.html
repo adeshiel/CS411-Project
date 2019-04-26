@@ -12,7 +12,6 @@
         body {
   font-family: Arial, Helvetica, sans-serif;
 }
-
 header {
   background-color: royalblue;
   text-align: center;
@@ -21,7 +20,6 @@ header {
     padding: 1px;
   color: white;
 }
-
 ul {
   list-style-type: none;
   margin: 0;
@@ -29,11 +27,9 @@ ul {
   overflow: hidden;
   background-color: #333;
 }
-
 li {
   float: left;
 }
-
 li a {
   display: block;
   color: white;
@@ -42,10 +38,8 @@ li a {
   text-decoration: none;
   font-family: 'Noto Sans', sans-serif;
 }
-
 li a:hover {
   background-color: #111;
-
 #video {
   float: left;
   padding: 20px;
@@ -53,7 +47,6 @@ li a:hover {
   background-color: #f1f1f1;
   height: 300px;
 }
-
     </style>
 </head>
 <body>
@@ -71,7 +64,6 @@ li a:hover {
         console.log('Family Name: ' + profile.getFamilyName());
         console.log("Image URL: " + profile.getImageUrl());
         console.log("Email: " + profile.getEmail());
-
         // The ID token you need to pass to your backend:
         var id_token = googleUser.getAuthResponse().id_token;
         document.getElementById("user").value = id_token
@@ -80,8 +72,12 @@ li a:hover {
     </script>
 <nav>
     <ul>
+<<<<<<< HEAD
       <li><a href="templates/login.html">Login Page</a></li>
       <li><a href="/oauth2callback">Save</a></li>
+=======
+      <li><a href="#">Save</a></li>
+>>>>>>> 3af8c6de8009c3359ef047c644cd3a58810ef3f9
       <li><a href="#">Share</a></li>
     </ul>
 </nav>
@@ -89,8 +85,7 @@ li a:hover {
 <br>
 <br>
 <br>
-  <video width="320" height="240" src={{ url_for('static', filename="outpy.mp4")}} controls>
-  </video>
+
   <div id="video">
       Average emotions: {{vid}} <br/>
       The highest emotion is {{highest}} <br/>
@@ -103,7 +98,7 @@ li a:hover {
       <br>
       <a href={{ url_for('static', filename="outpy.mp4")}} download> Download video here! </a>
   </div>
-  
+
 
 <body>
 
