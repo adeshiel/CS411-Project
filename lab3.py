@@ -10,6 +10,8 @@ from KEYS import CF_KEY
 from pymongo import MongoClient
 from werkzeug.utils import secure_filename
 
+
+# Flask
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = '/Uploads'
 
@@ -21,16 +23,18 @@ app.config['UPLOAD_FOLDER'] = '/Uploads'
 #    )
 
 
+## MongoClient
 client = MongoClient('localhost', 27017)
 db = client.user
 posts = db.posts
 
 
-
+## Microsoft Azure Face API
 CF.Key.set(CF_KEY)
 BASE_URL = 'https://eastus.api.cognitive.microsoft.com/face/v1.0/'  # Replace with your regional Base URL
 CF.BaseUrl.set(BASE_URL)
 
+## Setting OpenCV up
 TotalEmotionAverage = {'anger': [], 'contempt': [], 'disgust': [], 'fear': [], 'happiness': [], 'neutral': [], 'sadness': [], 'surprise': []}
 TotalAvg = {'anger': 0, 'contempt': 0, 'disgust': 0, 'fear': 0, 'happiness': 0, 'neutral': 0, 'sadness': 0, 'surprise': 0}
 exclamation = cv2.imread("effects\\exclamation.png")
@@ -53,6 +57,7 @@ def retpage():
         post = posts.insert_one(video_data)
 
         os.remove(secure_filename(vid.filename))
+        os.remove("current.png")
 
         return render_template("index.html", vid=analysis[1], highest=analysis[0])
     else:
@@ -65,7 +70,6 @@ def findEmotions(vid, turns):
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
     highestEmotion = ""
-    # out = cv2.VideoWriter('static\\outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 24, (frame_width,frame_height))
     out = cv2.VideoWriter('static\\outpy.mp4',0x7634706d, 24, (frame_width,frame_height))
 
     turnsLeft = 0
@@ -130,6 +134,7 @@ def findEmotions(vid, turns):
                 cv2.imwrite("gray.png", frame)
                 cur_frame = cv2.imread("gray.png")
                 out.write(cur_frame)
+                os.remove("gray.png")
 
             elif highestEmotion == 'surprise':
                 f_left = faceloc[0]
