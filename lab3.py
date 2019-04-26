@@ -2,6 +2,7 @@ import cv2
 import cognitive_face as CF
 import datetime
 import numpy as np
+import os
 import requests
 from io import BytesIO
 from flask import Flask, render_template, jsonify, request
@@ -51,6 +52,7 @@ def retpage():
         }
         post = posts.insert_one(video_data)
 
+        os.remove(secure_filename(vid.filename))
 
         return render_template("index.html", vid=analysis[1], highest=analysis[0])
     else:
