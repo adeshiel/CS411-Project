@@ -1,57 +1,70 @@
-import requests
 import cv2
 import cognitive_face as CF
-from io import BytesIO
+import datetime
 import numpy as np
+import requests
+from io import BytesIO
 from flask import Flask, render_template, jsonify, request
 from KEYS import CF_KEY
+from pymongo import MongoClient
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = '/Uploads'
 
 # if (__name__ == '__main__'):
 #    app.run(
 #        debug=True,
+#        threaded=False,
+#        processes=3,
 #    )
 
 
-CF.Key.set(CF_KEY)
+client = MongoClient('localhost', 27017)
+db = client.user
+posts = db.posts
 
+
+
+CF.Key.set(CF_KEY)
 BASE_URL = 'https://eastus.api.cognitive.microsoft.com/face/v1.0/'  # Replace with your regional Base URL
 CF.BaseUrl.set(BASE_URL)
 
-
-app.config['UPLOAD_FOLDER'] = '/Uploads'
-
-
 TotalEmotionAverage = {'anger': [], 'contempt': [], 'disgust': [], 'fear': [], 'happiness': [], 'neutral': [], 'sadness': [], 'surprise': []}
 TotalAvg = {'anger': 0, 'contempt': 0, 'disgust': 0, 'fear': 0, 'happiness': 0, 'neutral': 0, 'sadness': 0, 'surprise': 0}
-
-
-# exclamation = cv2.imread("effects\\exclamation.png", -1) # w: 100px h: 300px
 exclamation = cv2.imread("effects\\exclamation.png")
-@app.route("/")
-def homepage():
-    return render_template("index.html")
 
-@app.route("/return", methods=['GET', 'POST'])
+
+
+@app.route("/", methods=['GET', 'POST'])
 def retpage():
     if request.method == 'POST':
         vid= request.files['vide']
         vid.save(secure_filename(vid.filename))
         analysis = findEmotions(vid.filename, 20)
-        #TotalEmotionAverage = {'anger': [], 'contempt': [], 'disgust': [], 'fear': [], 'happiness': [], 'neutral': [], 'sadness': [], 'surprise': []}
+
+        video_data = {
+            'user': 'name/email_here',
+            'title': secure_filename(vid.filename),
+            'highestAvgEmotion': analysis[0],
+            'time_submitted': datetime.datetime.utcnow()
+        }
+        post = posts.insert_one(video_data)
+
+
         return render_template("index.html", vid=analysis[1], highest=analysis[0])
     else:
         return render_template("index.html")
 
 def findEmotions(vid, turns):
+    """ calculates highest emotion using Azure and applies effects with OpenCV """
     assert turns >= 0, "Cannot have negative turn value"
     cap = cv2.VideoCapture(vid)
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
     highestEmotion = ""
-    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 24, (frame_width,frame_height))
+    # out = cv2.VideoWriter('static\\outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 24, (frame_width,frame_height))
+    out = cv2.VideoWriter('static\\outpy.mp4',0x7634706d, 24, (frame_width,frame_height))
 
     turnsLeft = 0
     faceloc = []
