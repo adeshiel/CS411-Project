@@ -40,6 +40,7 @@ li a {
 }
 li a:hover {
   background-color: #111;
+}
 #video {
   float: left;
   padding: 20px;
@@ -53,7 +54,10 @@ li a:hover {
 <header>
   <h2>Dramafy</h2>
 </header>
-<div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+<nav>
+  <ul>
+
+<li><div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
     <script>
       function onSignIn(googleUser) {
         // Useful data for your client-side scripts:
@@ -69,15 +73,8 @@ li a:hover {
         document.getElementById("user").value = id_token
         console.log("ID Token: " + id_token);
       }
-    </script>
-<nav>
-    <ul>
-<<<<<<< HEAD
-      <li><a href="templates/login.html">Login Page</a></li>
+    </script></li>
       <li><a href="/oauth2callback">Save</a></li>
-=======
-      <li><a href="#">Save</a></li>
->>>>>>> 3af8c6de8009c3359ef047c644cd3a58810ef3f9
       <li><a href="#">Share</a></li>
     </ul>
 </nav>
@@ -85,10 +82,15 @@ li a:hover {
 <br>
 <br>
 <br>
+  {{uploaded}}
+  <br>
 
   <div id="video">
       Average emotions: {{vid}} <br/>
+      <br>
       The highest emotion is {{highest}} <br/>
+      <br>
+      
       <form action="/" enctype = "multipart/form-data" method="POST">
         <input type="text" value="" id="user" name="userToken" hidden/>
         <input type="file" accept="video/*" name="vide" />

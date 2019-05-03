@@ -5,13 +5,23 @@ import numpy as np
 import os
 import requests
 from io import BytesIO
-from flask import Flask, render_template, jsonify, request, url_for
+from flask import Flask, render_template, jsonify, request, url_for, redirect
 from KEYS import CF_KEY
 from pymongo import MongoClient
+# from apiclient.discovery import build
+# from oauth2client import file, client, tools
+from httplib2 import Http
+import googleapiclient.discovery
+from googleapiclient.http import MediaFileUpload
+from google.oauth2 import service_account
+
+# from flask_pymongo import PyMongo
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = '/Uploads'
+# app.config['MONGO_URI'] = environ.get('MONGODB_URI', "mongodb://localhost:27017/user")
+# mongo = PyMongo(app)
 
 
 if (__name__ == '__main__'):
@@ -30,24 +40,25 @@ CF.Key.set(CF_KEY)
 BASE_URL = 'https://eastus.api.cognitive.microsoft.com/face/v1.0/'  # Replace with your regional Base URL
 CF.BaseUrl.set(BASE_URL)
 
+
+### preloaded stuff
 TotalEmotionAverage = {'anger': [], 'contempt': [], 'disgust': [], 'fear': [], 'happiness': [], 'neutral': [], 'sadness': [], 'surprise': []}
 TotalAvg = {'anger': 0, 'contempt': 0, 'disgust': 0, 'fear': 0, 'happiness': 0, 'neutral': 0, 'sadness': 0, 'surprise': 0}
 exclamation = cv2.imread("effects\\exclamation.png")
 
 @app.route('/oauth2callback')
 def oauth2callback():
-    flow = client.flow_from_clientsecrets('client_id.json',
-            scope='https://www.googleapis.com/auth/drive',
-            redirect_uri=url_for('oauth2callback', _external=True)) # access drive api using developer credentials
-    flow.params['include_granted_scopes'] = 'true'
-    if 'code' not in flask.request.args:
-        auth_uri = flow.step1_get_authorize_url()
-        return flask.redirect(auth_uri)
-    else:
-        auth_code = flask.request.args.get('code')
-        credentials = flow.step2_exchange(auth_code)
-        open('credentials.json','w').write(credentials.to_json()) # write access token to credentials.json locally
-        return flask.redirect(flask.url_for('index'))
+    scope = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/drive.file']
+    credentials = service_account.Credentials.from_service_account_file('My-Project-bca5bf04cdbf.json', scopes=scope)
+
+    ### uploads to drive
+    drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials)
+    file_metadata = {'name': 'outpy.mp4'}
+    media = MediaFileUpload('outpy.mp4', mimetype='video/mp4')
+    file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+    print(drive_service.files())
+    return render_template("index.html", uploaded="Uploaded to Drive!")
+
 
 @app.route("/", methods=['GET', 'POST'])
 def retpage():
@@ -70,6 +81,8 @@ def retpage():
     else:
         return render_template("index.html")
 
+
+### Our main function
 def findEmotions(vid, turns):
     """ calculates highest emotion using Azure and applies effects with OpenCV """
     assert turns >= 0, "Cannot have negative turn value"
@@ -128,6 +141,10 @@ def findEmotions(vid, turns):
                     cap.release()
                     cv2.destroyAllWindows()
 
+
+
+
+            ### Applied effects
             if highestEmotion != 'anger' and angerAlpha != 0.1:
                 angerAlpha = 0.1
 
@@ -238,59 +255,9 @@ def findEmotions(vid, turns):
     print('The overall emotion of people in this video is: ' + highestAvgEmotion)
     return [highestAvgEmotion, TotalAvg]
 
-def forLab(vid):
-        """ Videos can only be read if they are present in the project folder """
-        cap = cv2.VideoCapture(vid)
-        emo = {}
-        while(cap.isOpened()):
-            ret, frame = cap.read()
-            cv2.imwrite("current.png", frame)
-
-            result = CF.face.detect("current.png", attributes='emotion')
-
-            try:
-                if result == []:
-                    continue
-
-                elif len(result) > 1:
-                    emoList = []
-
-                    for face in result:
-                        emotes = face['faceAttributes']['emotion']
-                        print(emotes)
-                        emoList.append(emotes)
-
-                        # TODO: if there is more than one face, average out emotion
-                        # for now we'll take the first one
-
-                    emo = emoList[0]
-                elif len(result) == 1:
-                    emo = result[0]['faceAttributes']['emotion']
-                    print(emo)
-
-                ## this block shows a separate window with live frames and edits
-                ## Use it for testing!
-                # cv2.putText(frame, str(highestEmotion), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 2, 255)
-                # cv2.imshow('Test', frame)
-                # cv2.waitKey(2)
-
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-                if emo != {}:
-                    print("breaking")
-                    break
-
-            except KeyboardInterrupt:
-                cap.release()
-                cv2.destroyAllWindows()
-
-        ## and when finished
-        cap.release()
-        cv2.destroyAllWindows()
-
-        return emo
 
 def getRectangle(faceDictionary):
+    """ finds the face rectangle """
     rect = faceDictionary['faceRectangle']
     left = rect['left']
     top = rect['top']
